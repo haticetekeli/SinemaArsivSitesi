@@ -1,0 +1,69 @@
+@model List<SinemaArsivSitesi.Models.Movie>
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+@{
+    ViewData["Title"] = "Filmler";
+    var isAdmin = (await AuthorizationService.AuthorizeAsync(User, "Admin")).Succeeded;
+    var isAuthenticated = User.Identity.IsAuthenticated;
+}
+
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Filmler</h2>
+        </div>
+        @if (isAdmin)
+        {
+            <div class="col text-end">
+                <a asp-action="Create" class="btn btn-primary">Yeni Film Ekle</a>
+            </div>
+        }
+        @if (isAuthenticated)
+        {
+            <div class="col text-end">
+                <a asp-action="MyFavorites" class="btn btn-info">Favori Filmlerim</a>
+            </div>
+        }
+    </div>
+
+    <div class="row">
+        @foreach (var movie in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="@movie.PosterUrl" class="card-img-top" alt="@movie.Title" style="height: 400px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">@movie.Title</h5>
+                        <p class="card-text">@movie.Description</p>
+                        <p class="card-text"><small class="text-muted">Tür: @movie.Category.Name</small></p>
+                        
+                        @if (isAuthenticated)
+                        {
+                            <form asp-action="AddToFavorites" method="post" style="display: inline;">
+                                <input type="hidden" name="movieId" value="@movie.Id" />
+                                <button type="submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-heart"></i> Favorilere Ekle
+                                </button>
+                            </form>
+                        }
+                        
+                        @if (isAdmin)
+                        {
+                            <a asp-action="Edit" asp-route-id="@movie.Id" class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                            <form asp-action="Delete" method="post" style="display: inline;">
+                                <input type="hidden" name="id" value="@movie.Id" />
+                                <button type="submit" class="btn btn-danger" 
+                                        onclick="return confirm('Bu filmi silmek istediğinizden emin misiniz?')">
+                                    <i class="fas fa-trash"></i> Sil
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div> 

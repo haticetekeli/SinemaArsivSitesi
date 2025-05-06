@@ -1,0 +1,8 @@
+@foreach (var movie in Model)
+{
+    <div>
+        <h3>@movie.Title</h3>
+        <p>@movie.Description</p> 
+        <img src="@movie.PosterUrl" alt="Poster" /> 
+    </div>
+}
