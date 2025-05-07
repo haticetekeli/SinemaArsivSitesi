@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using SinemaArsivSitesi.Data;
 using SinemaArsivSitesi.Services;
-using SinemaArsivSitesi.Services.Auth;
+using Microsoft.OpenApi.Models;
 
 namespace SinemaArsivSitesi
 {
@@ -15,11 +15,16 @@ namespace SinemaArsivSitesi
             builder.Services.DataAccessRegistration();
             builder.Services.AddControllersWithViews();
             builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
 
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" });
-                c.DocInclusionPredicate((docName, apiDesc) => true); 
+                c.SwaggerDoc("v1", new OpenApiInfo 
+                { 
+                    Title = "Sinema Arşiv API", 
+                    Version = "v1",
+                    Description = "Sinema Arşiv Sitesi API"
+                });
             });
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -45,34 +50,30 @@ namespace SinemaArsivSitesi
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseRouting();
             app.UseCors("AllowAll");    
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                c.RoutePrefix = "swagger";
-            });
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.MapControllers();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sinema Arşiv API V1");
+                c.RoutePrefix = "swagger";
+            });
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
+            app.MapControllers();
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
-                await RoleInitializer.CreateRolesAsync(services); 
+              
             }
 
             await app.RunAsync();
@@ -80,25 +81,5 @@ namespace SinemaArsivSitesi
     }
 }
 
-public static class RoleInitializer
-{
-    public static async Task CreateRolesAsync(IServiceProvider serviceProvider)
-    {
-        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-        string[] roles = { "Admin", "User" };
-
-        foreach (var role in roles)
-        {
-            if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
-        }
-
-        var user = await userManager.FindByEmailAsync("admin@email.com");
-        if (user != null)
-            await userManager.AddToRoleAsync(user, "Admin");
-    }
-}
 
 

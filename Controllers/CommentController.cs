@@ -6,6 +6,7 @@ using SinemaArsivSitesi.Services.Comments;
 namespace SinemaArsivSitesi.Controllers
 {
     [Authorize]
+    [AllowAnonymous]
     public class CommentController : Controller
     {
         private readonly ICommentService _commentService;
@@ -16,6 +17,7 @@ namespace SinemaArsivSitesi.Controllers
         }
 
         [HttpPost]
+        [Route("AddComment")]
         public async Task<IActionResult> Add(int filmId, string icerik)
         {
             var yorum = new Comment
@@ -27,13 +29,7 @@ namespace SinemaArsivSitesi.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _commentService.DeleteCommentAsync(id);
-            return RedirectToAction("Index", "Home");
-        }
-
+   
         
     }
 }

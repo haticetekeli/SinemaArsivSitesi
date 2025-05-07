@@ -1,39 +1,41 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using SinemaArsivSitesi.Models;
+using SinemaArsivSitesi.Services.Category;
+using SinemaArsivSitesi.Services.Movie;
 
 namespace SinemaArsivSitesi.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IMovieService _movieService;
+    private readonly ICategoryService _categoryService;
 
-
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IMovieService movieService, ICategoryService categoryService)
     {
         _logger = logger;
+        _movieService = movieService;
+        _categoryService = categoryService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-      
         var filmler = new List<Movie>
         {
-            new Movie { Id = 1, Title = "Film 1", Category = "Aksiyon", PosterUrl = "/images/film1.jpg" },
-            new Movie { Id = 2, Title = "Film 2", Category = "Komedi", PosterUrl = "/images/film2.jpg" },
-            new Movie { Id = 3, Title = "Film 3", Category = "Bilim Kurgu", PosterUrl = "/images/film3.jpg" },
-            new Movie { Id = 4, Title = "Film 4", Category = "Dram", PosterUrl = "/images/film4.jpg" }
+            new Movie { Title = "Film1", Description = "Bilim kurgu filmi", PosterUrl = "/images/Film4.jpg", Category = new Category { Name = "Aksiyon" } },
+            new Movie { Title = "Film2", Description = "Aksiyon filmi", PosterUrl = "/images/Film2.jpg", Category = new Category { Name = "Aksiyon" } },
+            new Movie { Title = "Film3", Description = "Suç filmi", PosterUrl = "/images/Film3.jpg", Category = new Category { Name = "Suç" } },
+            new Movie { Title = "Film4", Description = "Drama filmi", PosterUrl = "/images/Film4.jpg", Category = new Category { Name = "Drama" } }
         };
 
-        var kategoriler = new List<string> { "Aksiyon", "Komedi", "Bilim Kurgu", "Dram" };
-
-        var model = new HomeIndexViewModel
+        var viewModel = new HomeIndexViewModel
         {
             Filmler = filmler,
-            Kategoriler = kategoriler
+            Kategoriler = await _categoryService.GetAllCategories()
         };
 
-        return View(model);
+        return View(viewModel);
     }
 
     public IActionResult Privacy()

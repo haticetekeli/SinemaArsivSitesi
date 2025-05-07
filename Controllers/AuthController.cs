@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SinemaArsivSitesi.Models;
 using SinemaArsivSitesi.Services.Auth;
 
 namespace SinemaArsivSitesi.Controllers
 {
+
+    [ApiController]
+    [AllowAnonymous]
+
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
@@ -14,6 +19,8 @@ namespace SinemaArsivSitesi.Controllers
         }
 
         [HttpGet]
+        [Route("Login")
+            ]
         public IActionResult Login()
         {
             return View();

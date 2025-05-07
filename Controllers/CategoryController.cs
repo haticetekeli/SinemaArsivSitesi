@@ -1,11 +1,14 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SinemaArsivSitesi.Models;
 using SinemaArsivSitesi.Services.Category;
 
 namespace SinemaArsivSitesi.Controllers
 {
-    [Authorize(Roles = "Admin")]
-    public class CategoryController : Controller
+ 
+    [ApiController]
+    [AllowAnonymous]
+    public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
 
@@ -14,65 +17,77 @@ namespace SinemaArsivSitesi.Controllers
             _categoryService = categoryService;
         }
 
-        [AllowAnonymous]
-        public async Task<IActionResult> Index()
+   
+        [HttpGet]
+        [Route("categories")]
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
             var categories = await _categoryService.GetAllCategories();
-            return View(categories);
-        }
-
+            return Ok(categories);
+        }
+ 
+        [HttpPost("initialize")]
         public async Task<IActionResult> InitializeCategories()
         {
             await _categoryService.InitializeDefaultCategories();
-            return RedirectToAction(nameof(Index));
+            return Ok();
         }
 
+    
+        [Authorize(Roles = "Admin")]
         [HttpPost]
-        [ Route("AddCategories")]
-        public async Task<IActionResult> AddCategory(string name, string description)
+        public async Task<ActionResult<Category>> CreateCategory([FromBody] Category category)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(category.Name))
             {
-                return BadRequest("Kategori adı boş olamaz.");
+                return BadRequest("Kategori adı boş olamaz");
             }
 
-            var result = await _categoryService.AddCategory(name, description);
-            if (result)
+            var result = await _categoryService.AddCategory(category.Name, category.Description);
+            if (!result)
             {
-                return RedirectToAction(nameof(Index));
+                return BadRequest("Kategori oluşturulamadı");
             }
 
-            return BadRequest("Kategori eklenirken bir hata oluştu.");
+            return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, category);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateCategory(int id, string name, string description)
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] Category category)
         {
-            if (string.IsNullOrEmpty(name))
+            if (id != category.Id)
             {
-                return BadRequest("Kategori adı boş olamaz.");
+                return BadRequest();
             }
 
-            var result = await _categoryService.UpdateCategory(id, name, description);
-            if (result)
+            var result = await _categoryService.UpdateCategory(id, category.Name, category.Description);
+            if (!result)
             {
-                return RedirectToAction(nameof(Index));
+                return BadRequest("Kategori güncellenemedi");
             }
 
-            return BadRequest("Kategori güncellenirken bir hata oluştu.");
+            return NoContent();
         }
 
-        [HttpPost]
+     
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var result = await _categoryService.DeleteCategory(id);
-            if (result)
+            var category = await _categoryService.GetCategoryById(id);
+            if (category == null)
             {
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            return BadRequest("Kategori silinirken bir hata oluştu.");
+            var result = await _categoryService.DeleteCategory(id);
+            if (!result)
+            {
+                return BadRequest("Kategori silinemedi");
+            }
 
+            return NoContent();
         }
     }
 } 
