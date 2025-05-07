@@ -20,6 +20,7 @@ namespace SinemaArsivSitesi.Controllers
         }
 
         [HttpPost]
+        [Route("AddAuth")]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)

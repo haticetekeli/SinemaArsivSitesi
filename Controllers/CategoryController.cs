@@ -28,6 +28,7 @@ namespace SinemaArsivSitesi.Controllers
         }
 
         [HttpPost]
+        [ Route("AddCategories")]
         public async Task<IActionResult> AddCategory(string name, string description)
         {
             if (string.IsNullOrEmpty(name))

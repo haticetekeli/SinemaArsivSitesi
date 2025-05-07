@@ -1,45 +1,84 @@
-
 using Microsoft.AspNetCore.Identity;
 using SinemaArsivSitesi.Data;
 using SinemaArsivSitesi.Services;
-var builder = WebApplication.CreateBuilder(args);
+using SinemaArsivSitesi.Services.Auth;
 
-
-
-builder.Services.BusinessRegistration();
-builder.Services.DataAccessRegistration();
-builder.Services.AddControllersWithViews();
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
-
-var app = builder.Build();
-
-
-if (!app.Environment.IsDevelopment())
+namespace SinemaArsivSitesi
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    public class Program
+    {
+        public static async Task Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.BusinessRegistration();
+            builder.Services.DataAccessRegistration();
+            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllers();
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" });
+                c.DocInclusionPredicate((docName, apiDesc) => true); 
+            });
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
+            var app = builder.Build();
+
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseCors("AllowAll");    
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.RoutePrefix = "swagger";
+            });
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.MapControllers();
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                await RoleInitializer.CreateRolesAsync(services); 
+            }
+
+            await app.RunAsync();
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    await RoleInitializer.CreateRolesAsync(services); 
-}
-
-app.Run();
 
 public static class RoleInitializer
 {

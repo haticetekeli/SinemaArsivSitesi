@@ -3,6 +3,7 @@ using SinemaArsivSitesi.Models;
 using Microsoft.AspNetCore.Identity; 
 using Microsoft.AspNetCore.Mvc; 
 using Microsoft.AspNetCore.Mvc.Rendering; 
+using SinemaArsivSitesi.Services.Comments;
 
 namespace SinemaArsivSitesi.Models
 {

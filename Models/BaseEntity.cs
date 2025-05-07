@@ -13,5 +13,6 @@ namespace SinemaArsivSitesi.Models
         public DateTime? UpdatedDate { get; set; }
         public int CreatedById { get; set; }
         public int? UpdatedById { get; set; }
+        public Category Category { get; set; } 
     }
 }

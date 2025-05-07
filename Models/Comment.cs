@@ -4,7 +4,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc; 
 using Microsoft.AspNetCore.Mvc.Rendering;
 
+
+SinemaArsivSitesi.Models.Comment yorum = new SinemaArsivSitesi.Models.Comment();
+
 namespace SinemaArsivSitesi.Models
+
 {
     public class Comment : BaseEntity
     {
@@ -15,5 +19,6 @@ namespace SinemaArsivSitesi.Models
         public string Text { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+       
     }
 }

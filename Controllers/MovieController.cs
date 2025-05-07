@@ -35,6 +35,7 @@ namespace SinemaArsivSitesi.Controllers
         }
 
         [HttpPost]
+        [Route("AddMovies")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(string title, string description, string posterUrl, int categoryId)
         {

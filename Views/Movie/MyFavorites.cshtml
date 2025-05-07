@@ -23,7 +23,7 @@
                     <div class="card-body">
                         <h5 class="card-title">@movie.Title</h5>
                         <p class="card-text">@movie.Description</p>
-                        <p class="card-text"><small class="text-muted">Tür: @movie.Category.Name</small></p>
+                        <p class="card-text"><small class="text-muted">Tür: @movie.Category</small></p>
                         
                         <form asp-action="RemoveFromFavorites" method="post">
                             <input type="hidden" name="movieId" value="@movie.Id" />

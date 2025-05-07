@@ -13,8 +13,7 @@ namespace SinemaArsivSitesi.Data
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
-
-        public DbSet<Category> Categories { get; set; }
+        public DbSet<Category> Categories { get; set; } 
         public DbSet<Comment> Comments { get; set; }
         public DbSet<UserFavoriteMovie> UserFavoriteMovies { get; set; }
         public DbSet<Movie> Movies { get; set; }

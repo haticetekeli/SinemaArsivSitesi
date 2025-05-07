@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SinemaArsivSitesi.Models
 {
-    public class Movie  :BaseEntity
+    public class Movie : BaseEntity
     {
         public string Title { get; set; } = null!;
-        public string Description { get; set; }  
-        public string PosterUrl { get; set; }  
+        public string Description { get; set; }
+        public string PosterUrl { get; set; }
+        public Category Category { get; set; }
         public int CategoryId { get; set; }
-        public Category Category { get; set; } 
+
     }
 }
